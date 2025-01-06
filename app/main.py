@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.utils.migrations import apply_migrations
-from app.routers import auth, users, courses, topics
+from app.routers import auth, users
 
 
 @asynccontextmanager

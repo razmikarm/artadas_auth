@@ -5,8 +5,6 @@ from fastapi import APIRouter, HTTPException, status
 from app.db.database import DBSession
 from app.utils.auth import hash_password, CurrentUser
 from app.models.users import User, UserCreate, UserRead
-from app.models.courses import CourseReadList
-from app.models.topics import TopicReadList
 
 router = APIRouter(prefix="/users")
 
@@ -44,19 +42,3 @@ def read_user(user_id: UUID, session: DBSession):
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
-
-
-@router.get("/{user_id}/courses", response_model=list[CourseReadList])
-def read_user_courses(user_id: UUID, session: DBSession):
-    user = session.get(User, user_id)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return user.courses
-
-
-@router.get("/{user_id}/topics", response_model=list[TopicReadList])
-def read_user_topics(user_id: UUID, session: DBSession):
-    user = session.get(User, user_id)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return user.topics
