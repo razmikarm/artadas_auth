@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres
+    container_name: postgres
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persists DB data
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+
+  auth:
+    build: .
+    container_name: artadas_auth
+    env_file:
+      - .env
+    ports:
+      - "8008:8000"
+    depends_on:
+      - db
+    volumes:
+      - ../app:/app
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  backend:
+    driver: bridge

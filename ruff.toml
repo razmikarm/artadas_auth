@@ -1,0 +1,11 @@
+# More configurations here: https://docs.astral.sh/ruff/configuration/
+
+target-version = "py312"
+
+line-length = 120
+indent-width = 4
+
+exclude = ["venv", "alembic"]
+
+# [lint]
+# ignore = ["F821"]
