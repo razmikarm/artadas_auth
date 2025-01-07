@@ -44,12 +44,8 @@ def read_user(user_id: UUID, session: DBSession):
     return user
 
 
-@router.delete("/{user_id}", response_model=dict)
-def delete_user(user_id: UUID, session: DBSession) -> dict:
-    # Try to find the user
-    user = session.exec(select(User).where(User.id == user_id)).first()
-    if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+@router.delete("/", response_model=dict)
+def delete_user(user: CurrentUser, session: DBSession) -> dict:
     session.delete(user)
     session.commit()
 

@@ -10,6 +10,11 @@ if TYPE_CHECKING:
     from models.users import User
 
 
+class Login(SQLModel):
+    username: str
+    password: str
+
+
 class TokenBase(SQLModel):
     user_id: str
     token: str
