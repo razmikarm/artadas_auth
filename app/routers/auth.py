@@ -16,7 +16,7 @@ def login(login_data: Login, session: DBSession) -> TokenResponse:
     return token_response
 
 
-@router.post("/verify", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+@router.post("/verify", response_model=UserRead, status_code=status.HTTP_200_OK)
 def verify(access_token: TokenRequest, session: DBSession) -> UserRead:
     user = get_current_user(access_token.token, session, "access")
     return user
