@@ -4,7 +4,7 @@ from jose import jwt, JWTError, ExpiredSignatureError
 from typing import Literal, Annotated
 from sqlmodel import Session, select
 from datetime import datetime, timedelta, UTC
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Header, status
 from fastapi.security import OAuth2PasswordBearer
 
 from app.core.config import settings
@@ -121,4 +121,11 @@ def get_db_refresh_token(token: str, session: Session) -> RefreshToken:
     return db_refresh_token
 
 
+def get_header_auth_token(authorization: str = Header(...)):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid scheme")
+    return authorization.split(" ", 1)[1]
+
+
+HeaderAuthToken = Annotated[str, Depends(get_header_auth_token)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
