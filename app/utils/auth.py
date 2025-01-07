@@ -1,6 +1,6 @@
 import bcrypt
 import hashlib
-from jose import jwt, JWTError
+from jose import jwt, JWTError, ExpiredSignatureError
 from typing import Literal, Annotated
 from sqlmodel import Session, select
 from datetime import datetime, timedelta, UTC
@@ -85,15 +85,20 @@ def verify_token(token: oauth2_scheme, token_type: Literal["access", "refresh"] 
     }[token_type]
     try:
         payload = jwt.decode(token, secret, algorithms=[ALGORITHM])
-        username: str = payload.get("uname")
+        username = payload.get("uname")
         if username is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
         return username
+
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is expired")
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 
-def get_current_user(token: oauth2_scheme, token_type: Literal["access", "refresh"], session: DBSession) -> User:
+def get_current_user(
+    token: oauth2_scheme, session: DBSession, token_type: Literal["access", "refresh"] = "access"
+) -> User:
     try:
         username = verify_token(token, token_type)
         user = session.exec(select(User).where(User.username == username)).first()
@@ -111,6 +116,8 @@ def get_db_refresh_token(token: str, session: Session) -> RefreshToken:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Refresh token not found")
     if db_refresh_token.expires_at < datetime.now(UTC).replace(tzinfo=None):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Refresh token is expired")
+    if db_refresh_token.is_revoked:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Refresh token is revoked")
     return db_refresh_token
 
 

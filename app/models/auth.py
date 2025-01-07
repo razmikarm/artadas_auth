@@ -35,5 +35,5 @@ class RefreshToken(SQLModel, table=True):
     user: "User" = Relationship(back_populates="refresh_tokens")
 
 
-class RefreshTokenRequest(SQLModel):
-    refresh_token: str
+class TokenRequest(SQLModel):
+    token: str

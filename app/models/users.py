@@ -34,7 +34,9 @@ class User(UserBase, table=True):
         sa_column_kwargs={"server_default": func.current_timestamp()},
     )
 
-    refresh_tokens: list["RefreshToken"] = Relationship(back_populates="user")
+    refresh_tokens: list["RefreshToken"] = Relationship(
+        back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 
 class UserCreate(SQLModel):
