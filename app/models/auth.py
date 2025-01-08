@@ -1,4 +1,4 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 from typing import TYPE_CHECKING
 from datetime import datetime, UTC
 from sqlmodel import SQLModel, Field, func, Relationship
@@ -27,6 +27,7 @@ class TokenResponse(SQLModel):
 
 
 class RefreshToken(SQLModel, table=True):
+    id: UUID = Field(default_factory=uuid4, primary_key=True, index=True, nullable=False)
     user_id: UUID = Field(foreign_key="user.id")
     token_hash: str = Field(nullable=False, primary_key=True, index=True)
     created_at: datetime = Field(
