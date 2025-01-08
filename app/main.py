@@ -1,16 +1,27 @@
+import logging
+import multiprocessing
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
-# from app.utils.migrations import apply_migrations
+from app.utils.migrations import apply_migrations
 from app.routers import auth, users
 from app.core.config import settings
+
+log = logging.getLogger("uvicorn")
+logging.basicConfig(level=logging.INFO)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Perform any startup logic here
-    # apply_migrations()  # Apply migrations when the app starts
+    log.info("Starting up...")
+    log.info("Run alembic upgrade head...")
+    process = multiprocessing.Process(target=apply_migrations)
+    process.start()
+    process.join()  # Wait for the process to finish
+    log.info("Finished alembic upgrade.")
     yield  # Control returns to the application during runtime
+    log.info("Shutting down...")
     # Perform any shutdown logic here if needed
 
 
