@@ -3,8 +3,9 @@ from sqlmodel import select
 from fastapi import APIRouter, HTTPException, status
 
 from app.db.database import DBSession
-from app.utils.auth import hash_password, CurrentUser
 from app.models.users import User, UserCreate, UserRead
+from app.utils.auth import hash_password, CurrentUser
+from app.utils.validators import check_unique_fields
 
 router = APIRouter(prefix="/users")
 
@@ -24,6 +25,7 @@ def read_current_user(user: CurrentUser, session: DBSession) -> UserRead:
 @router.post("/", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, session: DBSession) -> UserRead:
     hashed_pwd = hash_password(user.password)
+    check_unique_fields(db_model=User, values={"email": user.email, "username": user.username}, session=session)
     db_user = User(
         username=user.username,
         email=user.email,
