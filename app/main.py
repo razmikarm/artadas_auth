@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
     # Perform any shutdown logic here if needed
 
 
-app = FastAPI(lifespan=lifespan, debug=settings.debug)
+app = FastAPI(lifespan=lifespan, debug=settings.debug, docs_url=None, redoc_url=None)
 
 app.include_router(auth.router, tags=["Auth"])
 app.include_router(users.router, tags=["Users"])
