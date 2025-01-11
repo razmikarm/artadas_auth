@@ -4,11 +4,13 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 from app.utils.migrations import apply_migrations
+from app.utils.middleware import LoggingMiddleware
+
 from app.routers import auth, users
 from app.core.config import settings
 
 log = logging.getLogger("uvicorn")
-logging.basicConfig(level=logging.INFO)
+log.setLevel(logging.DEBUG if settings.debug else logging.INFO)
 
 
 @asynccontextmanager
@@ -29,3 +31,6 @@ app = FastAPI(lifespan=lifespan, debug=settings.debug, docs_url=None, redoc_url=
 
 app.include_router(auth.router, tags=["Auth"])
 app.include_router(users.router, tags=["Users"])
+
+if settings.debug:
+    app.add_middleware(LoggingMiddleware)
