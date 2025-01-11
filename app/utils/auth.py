@@ -116,7 +116,7 @@ def get_current_user(
 
 
 def get_db_refresh_token_by_id(token_id: UUID, session: Session) -> RefreshToken:
-    db_refresh_token = session.exec(select(RefreshToken).where(RefreshToken.id == token_id)).one()
+    db_refresh_token = session.exec(select(RefreshToken).where(RefreshToken.id == token_id)).one_or_none()
     if db_refresh_token is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Token not found")
     if db_refresh_token.expires_at < datetime.now(UTC).replace(tzinfo=None):
@@ -128,7 +128,7 @@ def get_db_refresh_token_by_id(token_id: UUID, session: Session) -> RefreshToken
 
 def get_db_refresh_token(token: str, session: Session) -> RefreshToken:
     hashed_token = hash_refresh_token(token)
-    db_refresh_token = session.exec(select(RefreshToken).where(RefreshToken.token_hash == hashed_token)).one()
+    db_refresh_token = session.exec(select(RefreshToken).where(RefreshToken.token_hash == hashed_token)).one_or_none()
     if db_refresh_token is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Token not found")
     if db_refresh_token.expires_at < datetime.now(UTC).replace(tzinfo=None):
