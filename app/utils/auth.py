@@ -1,6 +1,6 @@
 import bcrypt
 import hashlib
-from uuid import UUID
+from uuid import UUID, uuid4
 from jose import jwt, JWTError, ExpiredSignatureError
 from typing import Literal, Annotated
 from sqlmodel import Session, select
@@ -61,7 +61,7 @@ def create_token(data: dict, token_type: Literal["access", "refresh"]) -> TokenB
 
 
 def generate_tokens(user: User, session: Session) -> TokenResponse:
-    token_data = {"uname": user.username, "uid": str(user.id)}
+    token_data = {"uname": user.username, "uid": str(user.id), "rid": str(uuid4())}
     refresh_token = create_token(token_data, token_type="refresh")
     db_refresh_token = RefreshToken(
         user_id=user.id,
