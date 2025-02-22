@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     refresh_token_timeout: int
     algorithm: str = "HS256"
 
+    INTERNAL_API_KEY: str
+    INTERNAL_IPS: list[str]
+
     @property
     def database_url(self) -> str:
         return (

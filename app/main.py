@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 from app.utils.migrations import apply_migrations
-from app.utils.middleware import LoggingMiddleware
+from app.utils.middleware import LoggingMiddleware, InternalRequestValidatorMiddleware
 
 from app.routers import auth, users
 from app.core.config import settings
@@ -29,8 +29,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, debug=settings.debug, docs_url=None, redoc_url=None)
 
-app.include_router(auth.router, tags=["Auth"])
-app.include_router(users.router, tags=["Users"])
+app.include_router(auth.router, prefix="/api", tags=["Auth"])
+app.include_router(users.router, prefix="/api", tags=["Users"])
 
-if settings.debug:
-    app.add_middleware(LoggingMiddleware)
+
+# Add middleware
+app.add_middleware(LoggingMiddleware, debug=settings.debug)
+app.add_middleware(
+    InternalRequestValidatorMiddleware, internal_ips=settings.INTERNAL_IPS, internal_api_key=settings.INTERNAL_API_KEY
+)

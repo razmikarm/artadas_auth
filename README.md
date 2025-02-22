@@ -15,7 +15,7 @@ Authentication server for Artadas project
 1. Clone the repository:
    ```bash
    git clone git@github.com:razmikarm/artadas_auth.git
-   cd artadas_api
+   cd artadas_auth
    ```
 
 2. Rename `.env.example` to `.env` and fill real data 
@@ -44,7 +44,6 @@ Authentication server for Artadas project
 5. View the interactive API docs:
    - Swagger UI: [127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
    - ReDoc: [127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
-
 
 ### Run with Docker
 
