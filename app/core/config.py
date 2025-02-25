@@ -1,5 +1,3 @@
-from typing import Any
-from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -19,8 +17,8 @@ class Settings(BaseSettings):
     refresh_token_timeout: int
     algorithm: str = "HS256"
 
+    REDIS_URL: str
     INTERNAL_API_KEY: str
-    INTERNAL_IPS: Any = []
 
     @property
     def database_url(self) -> str:
@@ -32,14 +30,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
-
-    # Custom validator for the INTERNAL_IPS field
-    @field_validator("INTERNAL_IPS", mode="before")
-    @classmethod
-    def parse_internal_ips(cls, v):
-        if isinstance(v, str):
-            return v.split(",")
-        return v
 
 
 settings = Settings()

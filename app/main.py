@@ -1,13 +1,13 @@
 import logging
 import multiprocessing
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from contextlib import asynccontextmanager
 
-from app.utils.migrations import apply_migrations
-from app.utils.middleware import LoggingMiddleware, InternalRequestValidatorMiddleware
-
-from app.routers import auth, users
 from app.core.config import settings
+from app.routers import auth, users, websockets
+from app.utils.migrations import apply_migrations
+from app.utils.middleware import LoggingMiddleware
+
 
 log = logging.getLogger("uvicorn")
 log.setLevel(logging.DEBUG if settings.debug else logging.INFO)
@@ -32,9 +32,9 @@ app = FastAPI(lifespan=lifespan, debug=settings.debug, docs_url=None, redoc_url=
 app.include_router(auth.router, prefix="/api", tags=["Auth"])
 app.include_router(users.router, prefix="/api", tags=["Users"])
 
-
-# Add middleware
 app.add_middleware(LoggingMiddleware, debug=settings.debug)
-app.add_middleware(
-    InternalRequestValidatorMiddleware, internal_ips=settings.INTERNAL_IPS, internal_api_key=settings.INTERNAL_API_KEY
-)
+
+
+@app.websocket("/ws")
+async def auth_websocket(websocket: WebSocket):
+    await websockets.websocket_handler(websocket)
