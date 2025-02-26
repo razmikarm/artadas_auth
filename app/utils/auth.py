@@ -1,7 +1,7 @@
 import bcrypt
 import hashlib
 from uuid import UUID, uuid4
-from jose import jwt, JWTError, ExpiredSignatureError
+from jose import jwt, ExpiredSignatureError
 from typing import Literal, Annotated
 from sqlmodel import Session, select
 from datetime import datetime, timedelta, UTC
@@ -93,26 +93,20 @@ def verify_token(token: oauth2_scheme, token_type: Literal["access", "refresh"] 
         if uid is None or (token_type == "access" and refresh_id is None):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
         return uid, refresh_id
-
     except ExpiredSignatureError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is expired")
-    except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 
 def get_current_user(
     token: oauth2_scheme, session: DBSession, token_type: Literal["access", "refresh"] = "access"
 ) -> User:
-    try:
-        user_id, refresh_id = verify_token(token, token_type)
-        if token_type == "access":
-            _ = get_db_refresh_token_by_id(refresh_id, session)
-        user = session.exec(select(User).where(User.id == user_id)).first()
-        if user is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication")
-        return user
-    except JWTError:
+    user_id, refresh_id = verify_token(token, token_type)
+    if token_type == "access":
+        _ = get_db_refresh_token_by_id(refresh_id, session)
+    user = session.exec(select(User).where(User.id == user_id)).first()
+    if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication")
+    return user
 
 
 def get_db_refresh_token_by_id(token_id: UUID, session: Session) -> RefreshToken:

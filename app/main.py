@@ -4,9 +4,10 @@ from fastapi import FastAPI, WebSocket
 from contextlib import asynccontextmanager
 
 from app.core.config import settings
+from app.db.database import DBSession
 from app.routers import auth, users, websockets
 from app.utils.migrations import apply_migrations
-from app.utils.middleware import LoggingMiddleware
+# from app.utils.middleware import LoggingMiddleware
 
 
 log = logging.getLogger("uvicorn")
@@ -32,9 +33,9 @@ app = FastAPI(lifespan=lifespan, debug=settings.debug, docs_url=None, redoc_url=
 app.include_router(auth.router, prefix="/api", tags=["Auth"])
 app.include_router(users.router, prefix="/api", tags=["Users"])
 
-app.add_middleware(LoggingMiddleware, debug=settings.debug)
+# app.add_middleware(LoggingMiddleware, debug=settings.debug)
 
 
 @app.websocket("/ws")
-async def auth_websocket(websocket: WebSocket):
-    await websockets.websocket_handler(websocket)
+async def auth_websocket(websocket: WebSocket, session: DBSession):
+    await websockets.websocket_handler(websocket, session)

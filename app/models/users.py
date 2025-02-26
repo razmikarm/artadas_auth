@@ -88,6 +88,9 @@ class UserRead(SQLModel):
     full_name: str | None
     tg_id: int | None = None
 
+    class Config:
+        json_encoders = {UUID: lambda v: str(v)}
+
 
 class UserUpdate(SQLModel):
     full_name: str | None = None
